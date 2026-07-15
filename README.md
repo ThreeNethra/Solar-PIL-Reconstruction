@@ -1,120 +1,624 @@
-# Bridging the Magnetogram Gap
+\# Machine Learning for Reconstruction of Solar Polarity Inversion Lines from Solar Filaments
 
-Physics-informed neural reconstruction of solar Polarity Inversion Lines (PILs) from historical filament archives.
 
-> MSc thesis project, Department of Physics, Indian Institute of Technology (BHU) Varanasi.
-> Supervisor: Dr. Bidya Binay Karak.
 
-## Overview
+!\[Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
 
-Direct magnetogram measurements of the Sun's magnetic polarity only go back a few decades, but filament observations extend much further into the past. Filaments form preferentially along polarity inversion lines (where the radial field changes sign), so filament geometry carries indirect information about historical polarity structure — but on its own it can't resolve *which side* of a filament is positive vs. negative.
+!\[PyTorch](https://img.shields.io/badge/PyTorch-Deep%20Learning-red.svg)
 
-This project implements and extends a physics-informed neural network (PINN) approach that reconstructs a continuous polarity field from filament locations, sparse polarity reference points, and physical constraints (boundary conditions, magnetic neutrality). The zero-level contour of the learned field is the reconstructed PIL.
+!\[License](https://img.shields.io/badge/License-MIT-green.svg)
 
-It builds on and reproduces the method from:
+!\[Status](https://img.shields.io/badge/Status-Completed-success.svg)
 
-> Kisielius, V. & Illarionov, E. (2024). *Machine Learning for Reconstruction of Polarity Inversion Lines from Solar Filaments.* Solar Physics, 299(5), 69. [DOI: 10.1007/s11207-024-02324-9](https://doi.org/10.1007/s11207-024-02324-9) · [arXiv:2405.06293](https://arxiv.org/abs/2405.06293)
 
-Original reference implementation: *(link to Kisielius & Illarionov's repo here if public — check their license before reusing code directly)*.
 
-## What's in this repo
+This repository contains the implementation, experiments, and results for my \*\*M.Sc. Physics Thesis\*\* at \*\*Indian Institute of Technology (BHU), Varanasi\*\*, focused on reconstructing \*\*solar polarity inversion lines (PILs)\*\* from solar filament observations using machine learning.
 
-Three experiments, each trained per-Carrington-Rotation with a 100-member network ensemble:
 
-| Experiment | Filament input | Polarity target | Purpose |
-|---|---|---|---|
-| 1 | McIntosh | McIntosh | Reproduce the original paper |
-| 2 | Meudon | McIntosh | Test an independent filament archive against the same target |
-| 3 | Meudon | CaK-magnetogram-derived (CR 1957) | Exploratory: independent target source |
 
-**Model:** fully connected MLP, `[3, 6, 12, 24, 12, 6, 3, 1]` (823 parameters). Inputs are spatial coordinates; output is a scalar polarity field. Ensembles of 100 independently initialized networks are trained per Carrington Rotation; the ensemble mean gives the polarity prediction and ensemble disagreement gives an uncertainty estimate.
+The work reproduces and extends the methodology proposed in the paper:
 
-**Evaluation:** IoU, Dice, Precision, Recall (macro-averaged over both polarity classes), averaged across 10 Carrington Rotations (1355, 1359, 1363, 1367, 1371, 1373, 1377, 1381, 1387, 1390) spanning solar minimum through decline, at four reference-point densities (step sizes 1, 8, 32, and none).
 
-## Key results
 
-| Reference step size | McIntosh→McIntosh IoU | Meudon→McIntosh IoU | Meudon→CaK IoU |
-|---|---|---|---|
-| 1 | 0.899 | 0.867 | 0.706 |
-| 8 | 0.898 | 0.859 | 0.695 |
-| 32 | 0.828 | 0.780 | 0.567 |
-| None | 0.509 | 0.528 | 0.440 |
+> \*\*Machine Learning for Reconstruction of Polarity Inversion Lines from Solar Filaments\*\*
 
-Headline finding: an independent filament archive (Meudon) can reconstruct McIntosh polarity maps at only a ~0.04 IoU penalty relative to using McIntosh's own filaments — suggesting the network is learning genuine physical structure rather than archive-specific quirks. Sparse reference points remain essential; without them, performance collapses close to random.
 
-See `results/` for full figures and `docs/` (or the thesis, if shared separately) for detailed discussion.
 
-## Repository structure
+using multiple solar filament datasets and evaluating reconstruction quality under different reference-point sampling strategies.
+
+
+
+\---
+
+
+
+\# Table of Contents
+
+
+
+\- \[Project Overview](#project-overview)
+
+\- \[Scientific Background](#scientific-background)
+
+\- \[Objectives](#objectives)
+
+\- \[Datasets](#datasets)
+
+\- \[Methodology](#methodology)
+
+\- \[Repository Structure](#repository-structure)
+
+\- \[Experimental Results](#experimental-results)
+
+\- \[Requirements](#requirements)
+
+\- \[Installation](#installation)
+
+\- \[Usage](#usage)
+
+\- \[Results](#results)
+
+\- \[Future Work](#future-work)
+
+\- \[Citation](#citation)
+
+\- \[License](#license)
+
+\- \[Acknowledgements](#acknowledgements)
+
+
+
+\---
+
+
+
+\# Project Overview
+
+
+
+Solar filaments are elongated structures suspended above the solar surface by magnetic fields. Since they are generally located along \*\*Polarity Inversion Lines (PILs)\*\*, filament observations can be used to reconstruct the underlying magnetic polarity distribution.
+
+
+
+Direct magnetic field observations are unavailable for much of the historical solar record, whereas filament observations extend back more than a century.
+
+
+
+This project investigates whether deep learning models can reconstruct solar polarity maps from filament observations, thereby enabling historical magnetic field reconstruction.
+
+
+
+The project reproduces published work while also exploring additional datasets and reconstruction scenarios.
+
+
+
+\---
+
+
+
+\# Scientific Background
+
+
+
+Polarity Inversion Lines represent the boundaries separating regions of opposite magnetic polarity on the Sun.
+
+
+
+Understanding their evolution is essential for studying
+
+
+
+\- Solar magnetic activity
+
+\- Active regions
+
+\- Solar cycles
+
+\- Coronal mass ejections
+
+\- Space weather forecasting
+
+
+
+Since historical magnetograms are limited, reconstructing polarity maps from filament observations provides an alternative approach to studying long-term solar magnetic evolution.
+
+
+
+\---
+
+
+
+\# Objectives
+
+
+
+The primary objectives of this work are:
+
+
+
+\- Reproduce the published PIL reconstruction framework.
+
+\- Train deep neural networks using historical filament observations.
+
+\- Compare reconstruction quality across different reference-point step sizes.
+
+\- Evaluate reconstruction performance using quantitative metrics.
+
+\- Extend the original methodology using Meudon filament observations.
+
+\- Explore reconstruction using Ca II K derived magnetograms.
+
+
+
+\---
+
+
+
+\# Datasets
+
+
+
+The project utilizes three major datasets.
+
+
+
+\## 1. McIntosh Synoptic Archive
+
+
+
+Used for
+
+
+
+\- Solar filament maps
+
+\- Ground-truth polarity maps
+
+
+
+Time span:
+
+
+
+1954 – 2024
+
+
+
+\---
+
+
+
+\## 2. Meudon Filament Archive
+
+
+
+Historical filament observations.
+
+
+
+Time span:
+
+
+
+1919 – 2003
+
+
+
+\---
+
+
+
+\## 3. Ca II K Predicted Magnetograms
+
+
+
+Used for exploratory reconstruction experiments where polarity targets are derived from predicted magnetograms.
+
+
+
+\---
+
+
+
+\# Methodology
+
+
+
+The reconstruction pipeline follows the methodology proposed in the reference paper.
+
+
+
+The overall workflow is
+
+
 
 ```
-.
-├── src/
-│   ├── data/            # build_image_data() variants for each experiment
-│   ├── model.py          # NeutralLiner architecture
-│   ├── train.py          # ensemble training loop
-│   └── evaluate.py       # IoU / Dice / Precision / Recall computation
-├── notebooks/
-│   └── demo.ipynb        # end-to-end demo on a single Carrington Rotation
-├── results/               # generated figures (ensemble means, bar charts) — small files only
+
+Filament Map
+
+&#x20;       │
+
+&#x20;       ▼
+
+Reference Point Sampling
+
+&#x20;       │
+
+&#x20;       ▼
+
+Neural Network Training
+
+&#x20;       │
+
+&#x20;       ▼
+
+Predicted Polarity Map
+
+&#x20;       │
+
+&#x20;       ▼
+
+Evaluation (IoU \& Dice Score)
+
+```
+
+
+
+Experiments were conducted using multiple reference-point sampling strategies:
+
+
+
+\- Step Size = 1
+
+\- Step Size = 8
+
+\- Step Size = 32
+
+\- No Sampling (Original)
+
+
+
+\---
+
+
+
+\# Repository Structure
+
+
+
+```
+
+Solar\_PIL\_reconstruction/
+
+│
+
 ├── data/
-│   └── README.md          # where to obtain McIntosh / Meudon / magnetogram data (not the data itself)
+
+│   └── README.md
+
+│
+
+├── notebooks/
+
+│   ├── Reconstruction\_for\_McIntosh\_Filaments.ipynb
+
+│   ├── Reconstruction\_for\_Meudon\_Filaments.ipynb
+
+│   └── Reconstruction\_for\_Meudon\_CaK\_Predicted\_Magnetogram.ipynb
+
+│
+
+├── results/
+
+│   ├── McIntosh/
+
+│   ├── Meudon/
+
+│   ├── CaK\_based\_magnetogram/
+
+│   └── Comparative Results/
+
+│
+
 ├── requirements.txt
+
+├── README.md
+
 ├── LICENSE
-└── README.md
+
+└── .gitignore
+
 ```
 
-## Getting the data
 
-This repo does **not** redistribute the raw datasets. See `data/README.md` for:
-- McIntosh Level-3 synoptic maps (NOAA/NGDC archive)
-- Meudon filament maps (Observatoire de Paris / Meudon)
-- CaK-magnetogram-derived polarity map (CR 1957)
 
-Download these separately and point the scripts at your local copy — see `data/README.md` for expected folder layout.
+\---
 
-## Setup
+
+
+\# Experimental Results
+
+
+
+The repository contains
+
+
+
+\- Reconstructed polarity maps
+
+\- Ground truth comparisons
+
+\- IoU analysis
+
+\- Dice coefficient analysis
+
+\- Comparative evaluation between McIntosh and Meudon datasets
+
+\- Exploratory Ca II K reconstruction experiments
+
+
+
+The experiments demonstrate successful reconstruction of polarity inversion structures from filament observations while highlighting the influence of reference-point sampling on reconstruction quality.
+
+
+
+\---
+
+
+
+\# Requirements
+
+
+
+Python 3.10+
+
+
+
+Major libraries include
+
+
+
+```
+
+numpy
+
+matplotlib
+
+torch
+
+scikit-image
+
+astropy
+
+opencv-python
+
+scipy
+
+jupyter
+
+```
+
+
+
+Install dependencies using
+
+
 
 ```bash
-git clone https://github.com/<your-username>/pil-reconstruction.git
-cd pil-reconstruction
+
 pip install -r requirements.txt
+
 ```
 
-## Usage
+
+
+\---
+
+
+
+\# Installation
+
+
+
+Clone the repository
+
+
 
 ```bash
-# Train an ensemble for one Carrington Rotation
-python src/train.py --cr 1373 --experiment mcintosh --step-size 8
 
-# Evaluate a trained ensemble
-python src/evaluate.py --cr 1373 --experiment mcintosh --step-size 8
+git clone https://github.com/<username>/solar-pil-reconstruction.git
+
 ```
 
-*(adjust to your actual CLI/argument names)*
 
-## Citation
 
-If you use this code, please cite the original method paper:
+Move into the project
 
-```bibtex
-@article{kisielius2024pil,
-  title={Machine Learning for Reconstruction of Polarity Inversion Lines from Solar Filaments},
-  author={Kisielius, Vaclovas and Illarionov, Egor},
-  journal={Solar Physics},
-  volume={299},
-  number={5},
-  pages={69},
-  year={2024},
-  doi={10.1007/s11207-024-02324-9}
-}
+
+
+```bash
+
+cd solar-pil-reconstruction
+
 ```
 
-## License
 
-Code in this repository is released under the MIT License (see `LICENSE`) unless otherwise noted. This does **not** cover:
-- Third-party datasets (McIntosh, Meudon, magnetogram products) — subject to their originators' terms.
-- The written thesis document, which is copyrighted by the Indian Institute of Technology (Banaras Hindu University), Varanasi.
 
-## Acknowledgements
+Install dependencies
 
-Thanks to Dr. Bidya Binay Karak (supervisor) and Mr. Rohan B. Mandrai for guidance during this project, and to Kisielius & Illarionov for the original reconstruction methodology.
+
+
+```bash
+
+pip install -r requirements.txt
+
+```
+
+
+
+\---
+
+
+
+\# Usage
+
+
+
+The experiments are provided as Jupyter notebooks.
+
+
+
+Run any notebook in the `notebooks/` directory depending on the dataset of interest.
+
+
+
+\- McIntosh reconstruction
+
+\- Meudon reconstruction
+
+\- Meudon → Ca II K reconstruction
+
+
+
+Outputs and visualizations will be generated automatically.
+
+
+
+\---
+
+
+
+\# Results
+
+
+
+The repository includes
+
+
+
+✔ Reconstructed polarity maps
+
+
+
+✔ Quantitative reconstruction metrics
+
+
+
+✔ IoU comparisons
+
+
+
+✔ Dice score comparisons
+
+
+
+✔ Multiple reference-point sampling experiments
+
+
+
+✔ Comparative evaluation across datasets
+
+
+
+\---
+
+
+
+\# Future Work
+
+
+
+Potential extensions include
+
+
+
+\- Transformer-based architectures
+
+\- Physics-informed neural networks
+
+\- Temporal reconstruction across multiple Carrington rotations
+
+\- Uncertainty estimation
+
+\- Solar cycle prediction using reconstructed magnetic maps
+
+\- Full-disc historical magnetic field reconstruction
+
+
+
+\---
+
+
+
+\# Citation
+
+
+
+If you use this repository in your research, please cite
+
+
+
+```
+
+Pranava Prakash J.
+
+
+
+Machine Learning for Reconstruction of Solar Polarity Inversion Lines from Solar Filaments.
+
+
+
+M.Sc. Thesis,
+
+Department of Physics,
+
+Indian Institute of Technology (BHU), Varanasi.
+
+2026\.
+
+```
+
+
+
+\---
+
+
+
+\# License
+
+
+
+This project is released under the MIT License.
+
+
+
+See the LICENSE file for details.
+
+
+
+\---
+
+
+
+\# Acknowledgements
+
+
+
+This work was completed as part of the M.Sc. Physics programme at
+
+
+
+\*\*Indian Institute of Technology (BHU), Varanasi\*\*
+
+
+
+Special thanks to my thesis supervisor for continuous guidance and support throughout this research.
+
+
+
+The implementation is based on the methodology presented in
+
+
+
+\*\*Machine Learning for Reconstruction of Polarity Inversion Lines from Solar Filaments\*\*, with additional experiments and analyses performed as part of this thesis.
+
