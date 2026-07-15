@@ -1,0 +1,42 @@
+# --- Data (never commit raw datasets) ---
+LEVEL3FITS/
+meudon_filaments/
+*.fits
+*.fits.gz
+data/raw/
+data/*.fits*
+
+# --- Model checkpoints (large, per-CR, per-ensemble-member) ---
+*.pt
+*.pth
+*.ckpt
+mcintosh_step_sizes/
+meudon_step_sizes/
+cak_step_sizes/
+models/
+
+# --- Colab / Drive artifacts ---
+drive/
+*.ipynb_checkpoints/
+
+# --- The submitted thesis PDF (copyright transferred to IIT BHU — confirm before committing) ---
+Thesis_*.pdf
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+.venv/
+venv/
+*.egg-info/
+
+# --- OS / editor ---
+.DS_Store
+.vscode/
+.idea/
+
+# --- Secrets ---
+*.env
+credentials.json
+token.json
